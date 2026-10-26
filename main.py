@@ -44,9 +44,9 @@ class Sheets():
         return Frames
 
 class Python(JohnDoe):
-    def __init__(self):
-        self._layer = 10
-        super().__init__(100, "down", 100, "idle")
+    def __init__(self, group):
+        self._layer = 0
+        super().__init__(100, "down", 100, "idle", group)
         IdleFrameData = Sheets("Images/16x16 Idle-Sheet.png", "Images/16x16 Idle.json")
         self.IdleFrames = {"up":[IdleFrameData[16:20]],
                            "down":[IdleFrameData[0:4]],
@@ -60,9 +60,65 @@ class Python(JohnDoe):
         self.rect = self.image.get_frect(center = ((ScreenWidth/2), (ScreenHeight/4)))
         self.hurtbox = self.rect.inflate(-2, -2)
         WalkFrameData = Sheets("Images/16x16 Walk-Sheet.png", "Images/16x16 Walk.json")
+        self.WalkFrames = {"up":[WalkFrameData[16:20]],
+                           "down":[WalkFrameData[0:4]],
+                           "DownRight":[WalkFrameData[4:8]],
+                           "Right":[WalkFrameData[8:12]],
+                           "UpRight":[WalkFrameData[12:16]],
+                           "DownLeft":[py.transform.flip(frame, False, True) for frame in [WalkFrameData[4:8]]],
+                           "UpLeft":[py.transform.flip(frame, False, True) for frame in [WalkFrameData[12:16]]],
+                           "Left":[py.transform.flip(frame, False, True) for frame in [WalkFrameData[8:12]]]}
+        PunchFrameData = Sheets("Images/16x16 Attack-Sheet.png", "Images/16x16 Attack.json")
+        self.PunchFrames = {"up":[PunchFrameData[24:30]],
+                            "down":[PunchFrameData[0:6]],
+                            "DownRight":[PunchFrameData[6:12]],
+                            "Right":[PunchFrameData[12:18]],
+                            "UpRight":[PunchFrameData[18:24]],
+                            "DownLeft":[py.transform.flip(frame, False, True) for frame in [PunchFrameData[6:12]]],
+                            "UpLeft":[py.transform.flip(frame, False, True) for frame in [PunchFrameData[18:24]]],
+                            "Left":[py.transform.flip(frame, False, True) for frame in [PunchFrameData[12:18]]]}
+        RunFrameData = Sheets("Images/16x16 Run-Sheet.png", "Images/16x16 Run.json")
+        self.RunFrames = {"up":[RunFrameData[24:30]],
+                            "down":[RunFrameData[0:6]],
+                            "DownRight":[RunFrameData[6:12]],
+                            "Right":[RunFrameData[12:18]],
+                            "UpRight":[RunFrameData[18:24]],
+                            "DownLeft":[py.transform.flip(frame, False, True) for frame in [RunFrameData[6:12]]],
+                            "UpLeft":[py.transform.flip(frame, False, True) for frame in [RunFrameData[18:24]]],
+                            "Left":[py.transform.flip(frame, False, True) for frame in [RunFrameData[12:18]]]}
+        self.Directions = {(0,1):"down",
+                           (0,-1):"up",
+                           (1,1):"DownRight",
+                           (1,-1):"UpRight",
+                           (1,0):"Right",
+                           (-1,0):"Left",
+                           (-1,1):"DownLeft",
+                           (-1,-1):"UpLeft"}
         self.animation_speed = 20
+    
+    def Walking(self, dt, FrameSet, keys):
+        self.direction.x = int(keys[py.K_d] - keys[py.K_a])
+        self.direction.y = int(keys[py.K_s] - keys[py.K_w])
+        self.direction = self.direction.normalize() if self.direction else self.direction
+        self.rect.center += self.direction * self.speed * dt
+        self.current_frame += self.animation_speed*dt
+        if self.current_frame >= len(FrameSet):
+            self.current_frame = 0
+    
+    def Compass(self, dt, Frameset):
+        if self.direction:
+            self.facing = self.Directions[(round(self.direction.x), round(self.direction.y))]
+    def update(self, dt):
+        
+Pythong = Python(all_sprites)
 
-
+while running:
+    dt = clock.tick(60) / 1000
+    Screen.fill('black')
+    Screen.blit(bg, (0,0))
+    all_sprites.update(dt)
+    all_sprites.draw(Screen)
+    py.display.flip()
 
 
 
