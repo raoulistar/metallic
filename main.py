@@ -87,7 +87,7 @@ class Player(JohnDoe):
                             "DownLeft":[py.transform.flip(frame, True, False) for frame in RunFrameData[6:12]],
                             "UpLeft":[py.transform.flip(frame, True, False) for frame in RunFrameData[18:24]],
                             "Left":[py.transform.flip(frame, True, False) for frame in RunFrameData[12:18]]}
-        self.Directions = {(0,1):"down",
+        self.EightDirections = {(0,1):"down",
                            (0,-1):"up",
                            (1,1):"DownRight",
                            (1,-1):"UpRight",
@@ -126,8 +126,8 @@ class Player(JohnDoe):
             else:
                 self.state = "Idle"
     def Compass(self):
-        if self.direction:
-            self.facing = self.Directions[(round(self.direction.x), round(self.direction.y))]
+        if self.direction and self.state != "Attacking":
+            self.facing = self.EightDirections[(round(self.direction.x), round(self.direction.y))]
     def update(self, dt):
         recentkeys = py.key.get_just_pressed()
         keys = py.key.get_pressed()
@@ -139,6 +139,27 @@ class Player(JohnDoe):
         print(self.facing)
         print(self.state)
 Python = Player(all_sprites, Sheets)
+
+class Guard(JohnDoe):
+    def __init__(self, groups):
+        self._layer = 0
+        super.__init__(110, "right", 50, "idle", groups)
+        self.scale = 4
+        self.AllFrameData = Sheets("Images/Soldier.png", "Images/Soldier.json").ImageCoordinates(self.scale)
+        self.IdleFrames = {"right":self.AllFrameData[0:5],
+                           "left":[py.transform.flip(frame, True, False) for frame in self.AllFrameData[0:5]]}
+        self.WalkFrames = {"right":self.AllFrameData[6:13],
+                           "left":[py.transform.flip(frame, True, False) for frame in self.AllFrameData[6:13]]}
+        self.SlashFrames = {"right":self.AllFrameData[14:19],
+                            "left":[py.transform.flip(frame, True, False) for frame in self.AllFrameData[14:19]]}
+        self.JumpSlashFrames = {"right":self.AllFrameData[20:25],
+                                "left":[py.transform.flip(frame, True, False) for frame in self.AllFrameData[20:25]]}
+        self.BowShotFrames = {"right": self.AllFrameData[26:34],
+                              "left":[py.transform.flip(frame, True, False) for frame in self.AllFrameData[26:34]]}
+        self.HurtFrames = {"right":self.AllFrameData[35:38],
+                           "left":[py.transform.flip(frame, True, False) for frame in self.AllFrameData[35:38]]}
+        self.DeadFrames = {"right":self.AllFrameData[39:42],
+                           "left":[py.transform.flip(frame, True, False) for frame in self.AllFrameData[39:42]]}
 all_sprites.add(Python)
 while running:
     dt = clock.tick(60) / 1000
