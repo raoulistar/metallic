@@ -2,8 +2,8 @@ import pygame as py
 from Sprites.JohnDoe import JohnDoe
 from OtherFunctions.SheetGrabbing import Sheets 
 class Player(JohnDoe):
-    def __init__(self, groups, ScreenWidth, ScreenHeight):
-        self._layer = 0
+    def __init__(self, groups, ScreenWidth, ScreenHeight, guards):
+        self._layer = 10
         super().__init__(100, "down", 100, "Idle", groups)
         self.scale = 4
         IdleFrameData = Sheets("Images/16x16 Idle-Sheet.png", "Images/16x16 Idle.json").ImageCoordinates(self.scale)
@@ -58,10 +58,21 @@ class Player(JohnDoe):
                         "Attacking":self.PunchFrames,
                         "Running":self.RunFrames}
         self.animation_speed = 10
-        self.Sounds = {"Idle":0,
-                       "Walking":10,
-                       "Running":50}
+        self.Volume = {"Idle":(0,0),
+                       "Walking":(5,75),
+                       "Running":(50,200)}
         self.SoundMeter = 0
+        self.GuardGroup = guards
+        self.Evidence = py.Vector2()
+
+    def SoundArea(self, dt):
+        self.SoundMeter = self.Volume.get(self.state, 0)
+        for sprite in self.GuardGroup:
+            if py.Vector2(self.rect.center).distance_squared_to(sprite.rect.center) < (self.SoundMeter[1]**2):
+                sprite.Alertness += self.SoundMeter[0]*dt
+        if self.state == "Running":
+            self.Evidence = self.rect.center
+
 
     def Walking(self, dt, FrameSet, keys):
         self.direction.x = int(keys[py.K_d] - keys[py.K_a])
@@ -91,14 +102,12 @@ class Player(JohnDoe):
         if self.direction and self.state != "Attacking":
             self.facing = self.EightDirections[(round(self.direction.x), round(self.direction.y))]
     def update(self, dt):
-        self.SoundMeter = self.Sounds.get(self.state, 0)
         recentkeys = py.key.get_just_pressed()
         keys = py.key.get_pressed()
         self.IndustrialStateMachine(keys, recentkeys)
         self.Compass()
         CurrentFrameSet = self.actions[self.state][self.facing]
+        self.SoundArea(dt)
         self.Walking(dt, CurrentFrameSet, keys)
         self.image = CurrentFrameSet[int(self.current_frame)]
-        print(self.facing)
-        print(self.state)
         pass

@@ -30,11 +30,25 @@ class Guard(JohnDoe):
         self.radius = 5
         self.image = self.IdleFrames[self.facing][0]
         self.rect = self.image.get_frect(center = starting_pos)
+        self.Python = Python
         self.distance = py.Vector2(self.rect.center).distance_to(Python.rect.center)
         self.Alertness = 0
+
+    def Walk(self, dt):
+        self.direction = py.Vector2(self.Python.Evidence) - py.Vector2(self.rect.center)
+        self.rect.center += self.direction*dt
+
+    def Search(self, dt):
+        pass
+
+    def RoutinePath(self, dt):
+        pass
 
     def Chase(self, dt,):
         pass
 
     def update(self, dt):
+        # print(self.Alertness)
+        self.Walk(dt)
+        print(self._layer)
         pass
