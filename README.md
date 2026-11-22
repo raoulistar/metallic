@@ -28,4 +28,5 @@ py main.py
 ```
 
 ## Controls
-I don't even know them yet
+WASD - Movement
+yeah thats it
